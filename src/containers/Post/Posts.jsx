@@ -14,9 +14,7 @@ export default function Posts(){
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState(0);
     const [content, setContent] = useState('');
-    const [files, setFiles] = useState('');
     const [imagePreview, setImagePreview] = useState(null);
-    const [imgBase64, setImgBase64] = useState(""); // 파일 base64
     const [imgFiles, setImgFiles] = useState([]);//파일	
 
     const [price_error] = useState("숫자 입력");
@@ -43,8 +41,15 @@ export default function Posts(){
 
     const deleteImg = e => {
         if(confirm("사진을 삭제?")){
-            setImgFiles(imgFiles.splice(e,1));
-            setImagePreview(imgItem);
+            var temp1 = imgFiles;
+            temp1.splice(e,1);
+            setImgFiles(temp1);
+            if(imgFiles.length === 0){
+                setImagePreview(null);
+
+            }else{
+                setImagePreview(imgItem());
+            }
         }else{
             return;
         }
@@ -52,16 +57,16 @@ export default function Posts(){
 
     const onLoadFile = async e =>{
         const file = e.target.files;
-        setFiles(file);
 
         var reader = new FileReader();
         reader.onloadend= ()=>{
             const base64 = reader.result;
             // setImgFiles([...imgFiles,reader.result]); //제대로 안들어가는거 같음, 첫번째 값만 인식못함
-            const temp = imgFiles;
+            var temp = imgFiles;
             temp.unshift(base64);
             setImgFiles(temp);
             setImagePreview(imgItem());
+            e.target.value = '';
         }
 
         reader.onerror = () =>{
@@ -78,7 +83,7 @@ export default function Posts(){
             title,
             price,
             content,
-            files
+            imgFiles // To-Do
         });
         try{
             console.log(res);
@@ -109,7 +114,7 @@ export default function Posts(){
                 <div className = "custom-img">
                     <strong>업로드된 이미지</strong>
                     
-                    <div className="grid-scroll-wrap"ß>
+                    <div className="grid-scroll-wrap">
                     {imagePreview === null ?
                         <div className="img-box"  style={{"backgroundColor": "#efefef","width":"300px", "height" : "300px"}}></div>
                         : imagePreview
