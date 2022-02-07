@@ -63,7 +63,8 @@ export default function Posts(){
             const base64 = reader.result;
             // setImgFiles([...imgFiles,reader.result]); //제대로 안들어가는거 같음, 첫번째 값만 인식못함
             var temp = imgFiles;
-            temp.unshift(base64);
+            //temp.unshift(base64);
+            temp.push(base64);
             setImgFiles(temp);
             setImagePreview(imgItem());
             e.target.value = '';
@@ -83,7 +84,7 @@ export default function Posts(){
             title,
             price,
             content,
-            imgFiles // To-Do
+            imgFiles
         });
         try{
             console.log(res);
@@ -92,7 +93,7 @@ export default function Posts(){
 
                 //To-Do : 해당 게시글로 이동하기
                 window.location.href = "/";
-            }else if(res.status == 400){
+            }else if(res.status == 400 && res.code==="U006"){
                 //만료된 세션아이디인 경우 삭제
                 deleteCookie("SESSION");
                 alert(res.message);

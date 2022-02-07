@@ -4,13 +4,19 @@ import axios from 'axios';
 // API Call
 async function postPost(post){
     //이미지 메타데이터를 처리하기 위해 form-data로 데이터를 전송해줘야함
-    let form = new FormData()
-    console.log(post)
-    form.append('category',post.category)
-    form.append('title',post.title)
-    form.append('price',post.price)
-    form.append('content',post.content)
-
+    let form = new FormData();
+    console.log(post.imgFiles);
+    form.append('category',post.category);
+    form.append('title',post.title);
+    form.append('price',post.price);
+    form.append('content',post.content);
+    for( var i in post.imgFiles){
+        console.log(post.imgFiles[i]);
+        form.append('files',post.imgFiles[i]);
+    }
+    for (var value of form.values()) {
+        console.log(value);
+     }
     try{
         const res = await axios.post('/api/v1/deal-posts', form,{
             headers : {
