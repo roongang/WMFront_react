@@ -14,17 +14,19 @@ export default function Posts(){
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState(0);
     const [content, setContent] = useState('');
+    const [imgFile, setImgFile] = useState([]);
+    //미리보기
     const [imagePreview, setImagePreview] = useState(null);
-    const [imgFiles, setImgFiles] = useState([]);//파일	
+    const [imgBase64, setImgBase64] = useState([]);
 
     const [price_error] = useState("숫자 입력");
 
     let categories = getCategory();
 
-    const imgItem = () => imgFiles.map((imgFile, index)=>(
+    const imgItem = () => imgBase64.map((file, index)=>(
                 <div key={index}>
                     <div>
-                        <img className="img-preview" src={imgFile} width='300px' height='300px'></img>
+                        <img className="img-preview" src={file} width='300px' height='300px'></img>
                     </div>
                     <div>
                         <button id={index} onClick={e => deleteImg(e.target.id)}>X</button>
@@ -37,14 +39,16 @@ export default function Posts(){
     useEffect(()=>{
         //state가 바뀔때마다 호출되다보니, state를 사용하기 어려워짐
         //preview();
+        
+        console.log('useEffect---',imgFile);
     });
 
     const deleteImg = e => {
         if(confirm("사진을 삭제?")){
-            var temp1 = imgFiles;
+            var temp1 = imgBase64;
             temp1.splice(e,1);
-            setImgFiles(temp1);
-            if(imgFiles.length === 0){
+            setImgBase64(temp1);
+            if(imgBase64.length === 0){
                 setImagePreview(null);
 
             }else{
@@ -57,17 +61,17 @@ export default function Posts(){
 
     const onLoadFile = async e =>{
         const file = e.target.files;
+        setImgFile(imgFile => [...imgFile, e.target.files]);
 
         var reader = new FileReader();
         reader.onloadend= ()=>{
             const base64 = reader.result;
-            // setImgFiles([...imgFiles,reader.result]); //제대로 안들어가는거 같음, 첫번째 값만 인식못함
-            var temp = imgFiles;
+            setImgBase64(imgBase64=>[...imgBase64,reader.result]);
+            var temp = imgBase64;
             //temp.unshift(base64);
             temp.push(base64);
-            setImgFiles(temp);
+            //setImgBase64(temp);
             setImagePreview(imgItem());
-            e.target.value = '';
         }
 
         reader.onerror = () =>{
@@ -79,12 +83,13 @@ export default function Posts(){
 
     const handleSubmit = async e =>{
         e.preventDefault();
+        console.log(imgFile);
         const res = await savePost({
             category,
             title,
             price,
             content,
-            imgFiles
+            imgFile
         });
         try{
             console.log(res);
