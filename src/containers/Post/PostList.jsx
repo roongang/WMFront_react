@@ -1,7 +1,8 @@
-import React, { Component, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ImageGallery from 'react-image-gallery';
 
 import getPostImg from '../../components/post/getPostImg';
+
 
 export default function PostList(){
     const images = [
@@ -19,30 +20,53 @@ export default function PostList(){
           },
     ];
     const [img, setImg] = useState(null);
+    const [imgBase64, setImgBase64] = useState(null);
+    const [query, setQuery] = useState("react");
     
-    window.onload = function(){
-      console.log("window.onload");
-      const file = getImgFile();
-      console.log(file);
+    useEffect(()=>{
+      let completed = false;
+      console.log('post-list 컴포넌트 화면에 나타남');
+      
+      if(!completed) {
+        getImgFile(1)
+        .then(result => onLoadFile())
+      }      
+      return () => {
+        completed = true; //초기에 한번만 실행시키기 위한 플래그
+        console.log('post-list 컴포넌트 화면에서 사라짐');
+      }
+    }, [query]);  //두번째 파라미터 배열이 비워져있으면 컴포넌트가 처음 나타날때만 실행됨
+
+    const getImgFile = async id =>{
+      const res = await getPostImg(id);
+      try{
+        ///여기부터 마저해야함
+        await setImg(res.data);
+        console.log(res);
+        console.log(img);
+      }catch(err){
+        alert(err);
+        return false;
+      }
     }
 
-    const getImgFile = async e => {
-      e.preventDefault();
-      const res = await getPostImg(6);
-      console.log('getImg');
-      // try{
-      //   console.log(res);
-      //   return res;
-      // }catch(err){
-      //   console.log(err);
-      //   return null;
-      // }
+    const onLoadFile = () =>{
+      var reader = new FileReader();
+      reader.onloadend = () => {
+        setImgBase64(reader.result)
+      }
+      console.log('load');
+      console.log(img);
+      reader.readAsBinaryString(img);
     }
 
     return (
         <div>
             <h1>판매글 목록</h1>
             {/* <ImageGallery items={images} />; */}
+            <p>
+              <img src={img}></img>
+            </p>
         </div>
     )
 }

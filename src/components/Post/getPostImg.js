@@ -1,11 +1,9 @@
 import axios from 'axios';
 
 // API Call
-async function getPostImg(id){
+async function getImgId(id){
     try{
-        const url = '/api/v1/deal-post-images/'+id
-        console.log(url);
-        const res = await axios.get(url)
+        const res = await axios.get('/api/v1/deal-post-images/'+id)
         return res;
     }catch(err){
         console.log(err);
@@ -13,6 +11,6 @@ async function getPostImg(id){
     }
 }
 
-export default async function getPostImg(){
-    return await getPostImg();
+export default async function getPostImg(id){
+    return await getImgId(id);
 }
