@@ -72,6 +72,7 @@ export default function Posts(){
             temp.push(base64);
             //setImgBase64(temp);
             setImagePreview(imgItem());
+            //e.target.files = '';
         }
 
         reader.onerror = () =>{
