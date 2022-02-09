@@ -42,7 +42,7 @@ export default function PostList(){
     return (
         <div>
             <h1>판매글 목록</h1>
-            <ImageGallery items={images} />;
+            {/* <ImageGallery items={images} />; */}
         </div>
     )
 }

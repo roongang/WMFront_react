@@ -1,9 +1,7 @@
-import React, {Component} from 'react';
-import {Routes, Route, Link} from 'react-router-dom';
+import React from 'react';
+import {Routes, Route } from 'react-router-dom';
 
 import Header from "./containers/common/Header";
-import useToken from "./components/common/useToken";
-import Logout from './components/user/logout';
 
 import Home from "./containers/common/Home";
 import About from "./containers/About";

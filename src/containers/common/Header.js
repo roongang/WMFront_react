@@ -1,7 +1,6 @@
 import React from "react";
 import {Link} from 'react-router-dom';
 
-import useToken from "../../components/common/useToken";
 import useCookie from "../../components/common/useCookie";
 
 import "./Header.css";
