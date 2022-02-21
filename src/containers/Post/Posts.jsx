@@ -67,10 +67,6 @@ export default function Posts(){
         reader.onloadend= ()=>{
             const base64 = reader.result;
             setImgBase64(imgBase64=>[...imgBase64,reader.result]);
-            var temp = imgBase64;
-            //temp.unshift(base64);
-            temp.push(base64);
-            //setImgBase64(temp);
             setImagePreview(imgItem());
             //e.target.files = '';
         }
@@ -99,7 +95,7 @@ export default function Posts(){
 
                 //To-Do : 해당 게시글로 이동하기
                 window.location.href = "/";
-            }else if(res.status == 400 && res.code==="U006"){
+            }else if(res.status === 400 && res.code==="U006"){
                 //만료된 세션아이디인 경우 삭제
                 deleteCookie("SESSION");
                 alert(res.message);
