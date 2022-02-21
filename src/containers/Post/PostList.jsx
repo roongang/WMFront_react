@@ -29,7 +29,7 @@ export default function PostList(){
       
       if(!completed) {
         getImgFile(1)
-        .then(result => onLoadFile())
+        .then(result => onLoadFile(result))
       }      
       return () => {
         completed = true; //초기에 한번만 실행시키기 위한 플래그
@@ -38,26 +38,27 @@ export default function PostList(){
     }, [query]);  //두번째 파라미터 배열이 비워져있으면 컴포넌트가 처음 나타날때만 실행됨
 
     const getImgFile = async id =>{
-      const res = await getPostImg(id);
       try{
+        const res = await getPostImg(id);
         ///여기부터 마저해야함
-        await setImg(res.data);
+        setImg(res.data);
         console.log(res);
         console.log(img);
+        return res.data;
       }catch(err){
         alert(err);
         return false;
       }
     }
 
-    const onLoadFile = () =>{
+    const onLoadFile = async e =>{
       var reader = new FileReader();
       reader.onloadend = () => {
         setImgBase64(reader.result)
       }
       console.log('load');
-      console.log(img);
-      reader.readAsBinaryString(img);
+      console.log(e);
+      reader.readAsBinaryString(e);
     }
 
     return (
