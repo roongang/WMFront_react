@@ -4,6 +4,8 @@ import ImageGallery from 'react-image-gallery';
 import getPostImg from '../../components/post/getPostImg';
 import getPostList from '../../components/post/getPostList';
 
+import '../../../public/css/style.css';
+
 export default function PostList(){
     const images = [
         {
@@ -19,34 +21,19 @@ export default function PostList(){
             thumbnail: 'https://picsum.photos/id/1019/250/150/',
           },
     ];
+    //TODO : 이미지 호출은 백엔드서버에서 수정한 다음에 하기
     const [img, setImg] = useState(null);
-    const [imgBase64, setImgBase64] = useState([]);
-    const [imgPreview, setImgPreview] = useState(null);
+    const [imgBase64, setImgBase64] = useState(null);
+    const [condition, setCondition] = useState({size : 10, page : 0, sort : 'pullingDate:desc'});
+    const [postList, setPostList] = useState(null);
     const [query, setQuery] = useState("react");
-
-    const imgItem = () => imgBase64.map((file,index)=>(
-      <div key={index}>
-                    <div>
-                        <img className="img-preview" src={file} width='300px' height='300px'></img>
-                    </div>
-                    <div>
-                        <button id={index}>X</button>
-                    </div>
-                </div>
-    ))
-
+    
     useEffect(()=>{
       let completed = false;
       console.log('post-list 컴포넌트 화면에 나타남');
       
       if(!completed) {
-        const res = getPost({size:3,page:0,sort:'pullingDate:desc'});
-        console(res);
-        // getImgFile(1).then((res)=>{
-        //   if(res !== false){
-        //     onLoadFile(res);
-        //   }
-        // });
+        const result = getPost();
       }      
       return () => {
         completed = true; //초기에 한번만 실행시키기 위한 플래그
@@ -54,43 +41,35 @@ export default function PostList(){
       }
     }, [query]);  //두번째 파라미터 배열이 비워져있으면 컴포넌트가 처음 나타날때만 실행됨
 
-    const getPost = async param => {
-      const res = await getPostList(param);
+    //TODO : 스타일 변경
+    const postItem = (posts) => posts.map((post)=>(
+        <div className="col mb-5"  key={post.id}>
+          <div className="card h-100">
+          <p>{post.title}</p>
+          <p>{post.userId}</p>
+          <p>{post.catagory}</p>
+          <p>{post.content}</p>
+          <p>{post.dealState}</p>
+          <p>{post.imageIds}</p>
+          </div>
+        </div>
+      )
+    );
+
+    const getPost = async e => {
+      //호출 단계에 따라 condition 변경해줘야 함
+      const res = await getPostList(condition);
       try{
-       console.log(res);
-       
-        return res;
+        console.log(res.data);
+        if(res.status === 200 && res.data.data.content.length > 0) {
+          setPostList(postItem(res.data.data.content));
+        }else{
+          console.log(res);
+          return false;
+        }
       }catch(e){
         console.log(e);
-        
-        return false;
       }
-    }
-
-    const getImgFile = async id =>{
-      const res = await getPostImg(id);
-      try{
-        setImg(res.data);
-        console.log('getImgFile');
-        return res.data;
-      }catch(err){
-        alert(err);
-        return false;
-      }
-    }
-
-    const onLoadFile = async res =>{
-      //var reader = new FileReader();
-      // reader.onloadend = () => {
-      //   setImgBase64(imgBase64=>[...imgBase64,`data:image/png;base64,${reader.result}`]);
-      //   setImgPreview(imgItem());
-      //   console.log(imgPreview);
-      // }
-      // console.log('onLoadFile');
-      // if(res){
-      //   reader.readAsBinaryString(res);  // null이 아닐 때
-      // }
-      console.log('이미지는 나중에 하자');
     }
 
     return (
@@ -100,6 +79,9 @@ export default function PostList(){
             <p>
               <img src={img}></img>
             </p>
+            <div className = "post-list">
+              {postList}
+            </div>
         </div>
     )
 }

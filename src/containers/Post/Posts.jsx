@@ -16,7 +16,7 @@ export default function Posts(){
     const [content, setContent] = useState('');
     const [imgFile, setImgFile] = useState([]);
     //미리보기
-    const [imagePreview, setImagePreview] = useState(null);
+    const [imagePreview, setImgPreview] = useState(null);
     const [imgBase64, setImgBase64] = useState([]);
 
     const [price_error] = useState("숫자 입력");
@@ -67,7 +67,7 @@ export default function Posts(){
         reader.onloadend= ()=>{
             const base64 = reader.result;
             setImgBase64(imgBase64=>[...imgBase64,reader.result]);
-            setImagePreview(imgItem());
+            setImgPreview(imgItem());
             //e.target.files = '';
         }
 
