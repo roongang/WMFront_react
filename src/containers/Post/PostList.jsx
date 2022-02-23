@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ImageGallery from 'react-image-gallery';
 
 import getPostImg from '../../components/post/getPostImg';
+import getPostList from '../../components/post/getPostList';
 
+import '../../../public/css/style.css';
 
 export default function PostList(){
     const images = [
@@ -19,8 +21,11 @@ export default function PostList(){
             thumbnail: 'https://picsum.photos/id/1019/250/150/',
           },
     ];
+    //TODO : 이미지 호출은 백엔드서버에서 수정한 다음에 하기
     const [img, setImg] = useState(null);
     const [imgBase64, setImgBase64] = useState(null);
+    const [condition, setCondition] = useState({size : 10, page : 0, sort : 'pullingDate:desc'});
+    const [postList, setPostList] = useState(null);
     const [query, setQuery] = useState("react");
     
     useEffect(()=>{
@@ -28,8 +33,7 @@ export default function PostList(){
       console.log('post-list 컴포넌트 화면에 나타남');
       
       if(!completed) {
-        getImgFile(1)
-        .then(result => onLoadFile())
+        const result = getPost();
       }      
       return () => {
         completed = true; //초기에 한번만 실행시키기 위한 플래그
@@ -37,27 +41,35 @@ export default function PostList(){
       }
     }, [query]);  //두번째 파라미터 배열이 비워져있으면 컴포넌트가 처음 나타날때만 실행됨
 
-    const getImgFile = async id =>{
-      const res = await getPostImg(id);
-      try{
-        ///여기부터 마저해야함
-        await setImg(res.data);
-        console.log(res);
-        console.log(img);
-      }catch(err){
-        alert(err);
-        return false;
-      }
-    }
+    //TODO : 스타일 변경
+    const postItem = (posts) => posts.map((post)=>(
+        <div className="col mb-5"  key={post.id}>
+          <div className="card h-100">
+          <p>{post.title}</p>
+          <p>{post.userId}</p>
+          <p>{post.catagory}</p>
+          <p>{post.content}</p>
+          <p>{post.dealState}</p>
+          <p>{post.imageIds}</p>
+          </div>
+        </div>
+      )
+    );
 
-    const onLoadFile = () =>{
-      var reader = new FileReader();
-      reader.onloadend = () => {
-        setImgBase64(reader.result)
+    const getPost = async e => {
+      //호출 단계에 따라 condition 변경해줘야 함
+      const res = await getPostList(condition);
+      try{
+        console.log(res.data);
+        if(res.status === 200 && res.data.data.content.length > 0) {
+          setPostList(postItem(res.data.data.content));
+        }else{
+          console.log(res);
+          return false;
+        }
+      }catch(e){
+        console.log(e);
       }
-      console.log('load');
-      console.log(img);
-      reader.readAsBinaryString(img);
     }
 
     return (
@@ -67,6 +79,9 @@ export default function PostList(){
             <p>
               <img src={img}></img>
             </p>
+            <div className = "post-list">
+              {postList}
+            </div>
         </div>
     )
 }
