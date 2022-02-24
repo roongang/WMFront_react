@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import {useParams, useLocation} from 'react-router';
 import { Button, TextField,MenuItem, Box,Input, IconButton} from '@material-ui/core';
-import { useEffect } from 'react';
+import {useNavigate} from 'react-router-dom';
 
 import { getCategory } from "../../data/categories";
 import savePost from "../../components/post/savePost";
@@ -15,45 +16,29 @@ export default function Posts(){
     const [price, setPrice] = useState(0);
     const [content, setContent] = useState('');
     const [imgFile, setImgFile] = useState([]);
-    //미리보기
-    const [imagePreview, setImgPreview] = useState(null);
     const [imgBase64, setImgBase64] = useState([]);
-
     const [price_error] = useState("숫자 입력");
 
-    let categories = getCategory();
+    const categories = getCategory();
+    const navigation = useNavigate();
 
-    const imgItem = () => imgBase64.map((file, index)=>(
-                <div key={index}>
-                    <div>
-                        <img className="img-preview" src={file} width='300px' height='300px'></img>
-                    </div>
-                    <div>
-                        <button id={index} onClick={e => deleteImg(e.target.id)}>X</button>
-                    </div>
-                </div>
-            
-        )
-    );
-    
     useEffect(()=>{
         //state가 바뀔때마다 호출되다보니, state를 사용하기 어려워짐
         //preview();
         
-        console.log('useEffect---',imgFile);
     });
 
     const deleteImg = e => {
-        if(confirm("사진을 삭제?")){
-            var temp1 = imgBase64;
-            temp1.splice(e,1);
-            setImgBase64(temp1);
-            if(imgBase64.length === 0){
-                setImagePreview(null);
+        if(confirm("사진을 삭제?")){            
+            //state를 직접 변경하지 않고(불변성을 지키기위해) 복사본을 만들어서 사용
+            var temp1 = [...imgBase64];
+            var temp2 = [...imgFile];
 
-            }else{
-                setImagePreview(imgItem());
-            }
+            temp1.splice(e,1);
+            temp2.splice(e,1);
+
+            setImgFile(temp2);
+            setImgBase64(temp1);
         }else{
             return;
         }
@@ -67,8 +52,6 @@ export default function Posts(){
         reader.onloadend= ()=>{
             const base64 = reader.result;
             setImgBase64(imgBase64=>[...imgBase64,reader.result]);
-            setImgPreview(imgItem());
-            //e.target.files = '';
         }
 
         reader.onerror = () =>{
@@ -94,10 +77,15 @@ export default function Posts(){
                 alert("게시글 등록 성공");
 
                 //To-Do : 해당 게시글로 이동하기
-                window.location.href = "/";
+                console.log(res.data.data.id);
+                navigation(`/postView/${res.data.data.id}`,{
+                    state:{
+                        post : null
+                    }
+                });
             }else if(res.status === 400 && res.code==="U006"){
                 //만료된 세션아이디인 경우 삭제
-                deleteCookie("SESSION");
+                sessionStorage.setItem('isAuth',false);
                 alert(res.message);
                 window.location.href = 'signin'
             }else{
@@ -118,9 +106,19 @@ export default function Posts(){
                     <strong>업로드된 이미지</strong>
                     
                     <div className="grid-scroll-wrap">
-                    {imagePreview === null ?
+                    {imgBase64.length === 0 ?
                         <div className="img-box"  style={{"backgroundColor": "#efefef","width":"300px", "height" : "300px"}}></div>
-                        : imagePreview
+                        : imgBase64.map((file, index)=>(
+                            <div key={index}>
+                                <div>
+                                    <img className="img-preview" src={file} width='300px' height='300px'></img>
+                                </div>
+                                <div>
+                                    <button id={index} onClick={e => deleteImg(e.target.id)}>X</button>
+                                </div>
+                            </div>
+                            )
+                        )
                     }                            
                     </div>
             </div>

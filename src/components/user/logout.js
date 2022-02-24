@@ -4,20 +4,16 @@ import axios from 'axios';
 import deleteCookie from '../common/deleteCookie';
 // API Call
 async function logoutCall(){
-    console.log("-----");
     try{
+        sessionStorage.setItem('isAuth',false);
         const res = await axios.post('/api/v1/signout',{
             headers : {
                 'Content-Type' : 'application/json'
             }
         });
-        deleteCookie("SESSION");
-        //로그아웃 성공시 홈화면으로 이동
         window.location.href = "/";    
     }catch(e){
-        deleteCookie("SESSION");
-        //로그아웃 실패시 현재화면 새로고침
-        window.location.reload();
+        window.location.href = "/";    
         console.log(e);
         return false;
     }

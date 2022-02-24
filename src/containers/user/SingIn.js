@@ -60,10 +60,9 @@ export default function SignIn(){
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [session, updateCookie] = useCookie("SESSION",null);
-
+    const isAuth = sessionStorage.getItem('isAuth');
     useEffect(()=>{
-        //deleteCookie("SESSION");
-        if (session != null || session != undefined){
+        if (isAuth==='true'){
             //이미 로그인되어 있으면
             alert("이미 로그인되어 있음");
             window.location.href = "/";
@@ -88,7 +87,7 @@ export default function SignIn(){
                     console.log(document.cookie.SESSION);
                     // 필요시에 로컬에 값 저장
                     localStorage.setItem('email', email);
-
+                    sessionStorage.setItem('isAuth',true);
                     window.location.href = "/";
                 });
             }else{
