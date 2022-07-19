@@ -5,8 +5,9 @@ import ImageGallery from 'react-image-gallery';
 
 import Loader from '../common/Loader';
 
-import getPostImg from '../../components/post/getPostImg';
-import getPostList from '../../components/post/getPostList';
+import getPostImgAPI from '../../components/post/getPostImgAPI';
+import getPostListAPI from '../../components/post/getPostListAPI';
+import imgLoader from '../../components/common/imgLoader';
 
 import '../../../public/css/styles.css';
 
@@ -34,58 +35,49 @@ export default function PostList(){
     const [imgBase64, setImgBase64] = useState(null);
     const [condition, setCondition] = useState({size : 10, page : 0, sort : 'pullingDate:desc'});
     const [postList, setPostList] = useState([]);
+    const [postImgList, setPostImgList] = useState([]);
     const [query, setQuery] = useState("react");    
     const navigation = useNavigate();
-    //무한스크롤
-    const [target, setTarget] = useState(null);
-    const [isLoaded, setIsLoaded] = useState(false);
     let page = 0;
-    const itemNum = 8; // 한번에 호출할 개수
+    const itemNum = 6; // 한번에 호출할 개수
+    const offset = (page)*itemNum;
 
     useEffect(()=>{
-      console.log(postList);
-    },[postList]);
-
-    // useEffect(()=>{
-    //   let completed = false;
+      const result = getPost();
       
-    //   if(!completed) {
-    //     const result = getPost();
-    //   }      
-    //   return () => {
-    //     completed = true; //초기에 한번만 실행시키기 위한 플래그
-    //   }
-    // }, [query]);  //두번째 파라미터 배열이 비워져있으면 컴포넌트가 처음 나타날때만 실행됨
-
-    useEffect(()=>{
-      let observer;
-      if(target){
-        observer = new IntersectionObserver(onIntersect,{
-          threshold : 0.3,
-        });
-        observer.observe(target);
-      }
-      return () => observer && observer.disconnect();
-    },[target]);
+      console.log("getPostImgList=",postImgList);
+    },[]);
 
     const getPost = async e => {
       //호출 단계에 따라 condition 변경해줘야 함(pagination)
       try{
         console.log(itemNum,'------',page);
-        const res = await getPostList({size:itemNum,page:page,sort:'pullingDate:desc'});
-        console.log(res.data);
+        const res = await getPostListAPI({size:itemNum,page:page,sort:'pullingDate:desc'});
         if(res.status === 200 && res.data.data.content.length > 0) {
           setPostList((postList)=>postList.concat(res.data.data.content));
           page = page+1;
+          await getPostImgList(res.data.data.content);
           return true;
+        }else if(res.status===200 && res.data.data.content.length==0){
+          //저장된 게시글이 없음
+          return false;
         }else{
-          console.log(res);
+          //백엔드 서버 오류 의심
           return false;
         }
       }catch(e){
         console.log(e);
         return false;
       }
+    }
+
+    const getPostImgList = async postList => {
+      postList.map(async(post,index) =>{
+        // 대표이미지 1개만 가져오기
+        const res = await getPostImgAPI(post.imagesId[0]);
+        const url = await imgLoader(res);
+        setPostImgList((postImgList)=>postImgList.concat(url));
+      })
     }
 
     const handleClickPost = (postId,index) =>{
@@ -96,26 +88,7 @@ export default function PostList(){
         }
       });
     };
-
-    const onIntersect = async ([entry], observer) => {
-      if (entry.isIntersecting && !isLoaded) {
-        observer.unobserve(entry.target);
-        await getMoreItem();
-        observer.observe(entry.target);
-      }
-    };
-
-    const getMoreItem = async () =>{
-      setIsLoaded(true);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      const result = await getPost();
-      console.log(result,target);
-      if(!result){
-        //더 이상 게시글이 없으면 load stop
-      }  
-      setIsLoaded(false);    
-    }
-
+    
     return (
         <div>
             <h1>판매글 목록</h1>
@@ -130,13 +103,13 @@ export default function PostList(){
                     <div className="card h-100">
                       <div className="badge bg-dark text-white position-absolute" style={{top: "0.5rem", right: "0.5rem"}}>{post.dealState}</div>
                       {/* <!-- Product image--> */}
-                      <img className="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..." />
+                      <img className="card-img-top" src={postImgList[index]} alt="..." />
                       {/* <!-- Product details--> */}
                       <div className="card-body p-4">
                         <div className="text-center">
                           <h5 className="fw-bolder" onClick={()=> handleClickPost(post.id,index)}>{post.title}</h5>
                           {post.price}<br />
-                          {post.userId}<br />
+                           {post.userId}<br />
                           {post.category}<br />
                         </div>
                       </div>
@@ -149,9 +122,6 @@ export default function PostList(){
                   )
                 )
               }
-              <div ref={setTarget} className="Target-Element">
-                {isLoaded && <Loader />}
-              </div>
               </div>
             </div>
             </div>                

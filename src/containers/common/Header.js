@@ -11,7 +11,7 @@ function Header(){
     const MenuItem = ({active, children, to}) =>(
         <div className="menu-item">{children}</div>
     );
-    //problem : 한 번 로딩되면 더이상 체크안하는거 같음
+    //problem : 한 번 로딩되면 더이상 체크안하는거 같음 (웹 로컬변수로 변경하기)
     const isAuth = sessionStorage.getItem('isAuth');
     return(
         <div>

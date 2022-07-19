@@ -6,7 +6,7 @@ import Home from "./containers/common/Home";
 import About from "./containers/About";
 import Posts from "./containers/post/Posts.jsx";
 import MyPosts from "./containers/post/MyPosts.js";
-import PostList from "./containers/post/PostList.jsx";
+import PostListView from "./containers/post/PostListView.jsx";
 import PostView from "./containers/post/PostView.jsx";
 import Invoices from "./containers/Invoices.jsx";
 import Invoice from "./containers/Invoice";
@@ -26,7 +26,7 @@ function App(){
                     <Route path="profile" element={<Profile />} />
                     <Route path="about" element={<About />} />
                     <Route path="post-save" element={<Posts />} />
-                    <Route path="postView" element={<PostList />} />
+                    <Route path="postView" element={<PostListView />} />
                     <Route path="postView/:no" element={<PostView />} />
                     <Route path="my-posts" element={<MyPosts />} />
                     <Route path="invoices" element={<Invoices />}>
